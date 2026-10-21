@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trabalhe na Servir</title>
+<meta name="description" content="Cadastre seu currículo para as vagas da Servir.">
+<link rel="icon" href="icone.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<link rel="stylesheet" href="estilo.css">
+<style>
+  body { margin: 0; }
+  :root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+</style>
+</head>
+<body>
+<header class="topbar wrap">
+  <div class="inner">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">S</div>
+      <div>
+        <div class="brand-name">Servir</div>
+        <div class="brand-sub">Trabalhe conosco</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="form-page wrap">
+  <div class="form-card">
+    <div id="aviso-config" class="banner erro" hidden>Este formulário ainda não foi configurado. Preencha o arquivo config.js com os dados do Supabase.</div>
+
+    <div id="form-area">
+      <div class="form-head">
+        <div class="eyebrow">Trabalhe na Servir</div>
+        <h1>Cadastre seu currículo</h1>
+        <p>Leva uns 5 minutos. Se o seu perfil combinar com uma vaga, a nossa equipe chama você pelo WhatsApp.</p>
+        <div class="progress" aria-hidden="true"><div id="prog"></div></div>
+        <div class="progress-txt" id="prog-txt"></div>
+      </div>
+
+      <form id="cad" novalidate>
+        <div class="honey" aria-hidden="true"><label for="f-site">Não preencha</label><input type="text" id="f-site" name="site" tabindex="-1" autocomplete="off"></div>
+
+        <fieldset>
+          <legend>Seus dados</legend>
+          <div class="field" data-req="nome">
+            <label class="lbl" for="f-nome">Nome completo <span class="req">*</span></label>
+            <input type="text" id="f-nome" name="nome" autocomplete="name" maxlength="120">
+            <div class="msg">Escreva seu nome completo.</div>
+          </div>
+          <div class="grid2">
+            <div class="field" data-req="whats">
+              <label class="lbl" for="f-whats">WhatsApp <span class="req">*</span></label>
+              <input type="tel" id="f-whats" name="whats" placeholder="(24) 99999-9999" inputmode="numeric" autocomplete="tel">
+              <div class="msg">Informe o número com DDD (11 dígitos).</div>
+            </div>
+            <div class="field" data-req="email">
+              <label class="lbl" for="f-email">E-mail</label>
+              <input type="email" id="f-email" name="email" autocomplete="email" maxlength="120">
+              <div class="msg">Confira o e-mail ou deixe em branco.</div>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field" data-req="cidade">
+              <label class="lbl" for="f-cidade">Cidade <span class="req">*</span></label>
+              <select id="f-cidade" name="cidade"></select>
+              <div class="msg">Escolha sua cidade.</div>
+            </div>
+            <div class="field" data-req="bairro">
+              <label class="lbl" for="f-bairro">Bairro <span class="req">*</span></label>
+              <input type="text" id="f-bairro" name="bairro" maxlength="80">
+              <div class="msg">Informe o bairro.</div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Vaga e experiência</legend>
+          <div class="field" data-req="vagas">
+            <span class="lbl" id="l-vagas">Vaga de interesse <span class="req">*</span></span>
+            <div class="opts" id="f-vagas" role="group" aria-labelledby="l-vagas"><span class="hint">Carregando vagas…</span></div>
+            <div class="hint">Escolha até 2.</div>
+            <div class="msg">Escolha pelo menos uma vaga.</div>
+          </div>
+          <div class="field" data-req="exp">
+            <span class="lbl" id="l-exp">Experiência na área da vaga <span class="req">*</span></span>
+            <div class="opts" id="f-exp" role="radiogroup" aria-labelledby="l-exp"></div>
+            <div class="msg">Escolha uma opção.</div>
+          </div>
+          <div class="field">
+            <label class="lbl" for="f-ultimo">Último cargo e empresa</label>
+            <input type="text" id="f-ultimo" name="ultimo" maxlength="150" placeholder="Ex.: Operadora de caixa, Supermercado X">
+          </div>
+          <div class="field" data-req="lider">
+            <span class="lbl" id="l-lider">Já liderou equipe? <span class="req">*</span></span>
+            <div class="opts" id="f-lider" role="radiogroup" aria-labelledby="l-lider"></div>
+            <div class="msg">Escolha uma opção.</div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Formação e conhecimentos</legend>
+          <div class="grid2">
+            <div class="field" data-req="esc">
+              <label class="lbl" for="f-esc">Escolaridade <span class="req">*</span></label>
+              <select id="f-esc" name="esc"></select>
+              <div class="msg">Escolha sua escolaridade.</div>
+            </div>
+            <div class="field">
+              <label class="lbl" for="f-curso">Curso ou área de formação</label>
+              <input type="text" id="f-curso" name="curso" maxlength="120">
+            </div>
+          </div>
+          <div class="field" data-req="excel">
+            <span class="lbl" id="l-excel">Conhecimento em Excel <span class="req">*</span></span>
+            <div class="opts" id="f-excel" role="radiogroup" aria-labelledby="l-excel"></div>
+            <div class="msg">Escolha uma opção.</div>
+          </div>
+          <div class="field" data-req="cnh">
+            <span class="lbl" id="l-cnh">CNH e veículo <span class="req">*</span></span>
+            <div class="opts" id="f-cnh" role="radiogroup" aria-labelledby="l-cnh"></div>
+            <div class="msg">Escolha uma opção.</div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Disponibilidade</legend>
+          <div class="field" data-req="turnos">
+            <span class="lbl" id="l-turnos">Turnos disponíveis <span class="req">*</span></span>
+            <div class="opts" id="f-turnos" role="group" aria-labelledby="l-turnos"></div>
+            <div class="hint">Pode marcar mais de um. O turno da vaga é confirmado na entrevista.</div>
+            <div class="msg">Escolha pelo menos um turno.</div>
+          </div>
+          <div class="field" data-req="inicio">
+            <span class="lbl" id="l-inicio">Pode começar <span class="req">*</span></span>
+            <div class="opts" id="f-inicio" role="radiogroup" aria-labelledby="l-inicio"></div>
+            <div class="msg">Escolha uma opção.</div>
+          </div>
+          <div class="field" data-req="salario">
+            <label class="lbl" for="f-salario">Pretensão salarial <span class="req">*</span></label>
+            <select id="f-salario" name="salario"></select>
+            <div class="msg">Escolha uma faixa ou "Prefiro informar na entrevista".</div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Currículo e autorização</legend>
+          <div class="field" data-req="cv">
+            <label class="lbl" for="f-cv">Currículo (opcional)</label>
+            <div class="file-box">
+              <input type="file" id="f-cv" accept=".pdf,image/jpeg,image/png,image/webp,image/heic">
+              <div class="hint">PDF ou foto, até 5 MB.</div>
+            </div>
+            <div class="msg">Envie um PDF ou foto de até 5 MB, ou deixe em branco.</div>
+          </div>
+          <div class="field" data-req="aceite">
+            <label class="consent" for="f-aceite">
+              <input type="checkbox" id="f-aceite" name="aceite">
+              <span>Autorizo a Servir Serviços de Publicidade, Produções e Serviços Gerais Ltda a usar os dados deste cadastro somente para recrutamento e seleção de vagas. Meus dados ficam guardados por até 12 meses e são vistos apenas pela equipe de RH e gestão. Posso pedir para corrigir ou apagar meus dados a qualquer momento pelo e-mail rh@cartaoservir.com.br. <span class="req">*</span></span>
+            </label>
+            <div class="msg">Para enviar, marque a autorização de uso dos dados.</div>
+          </div>
+        </fieldset>
+        <div id="erro-envio" class="banner erro" hidden></div>
+        <div class="submit-row"><button type="submit" class="btn btn-primary" id="enviar">Enviar meu cadastro</button></div>
+      </form>
+    </div>
+
+    <div id="form-done" class="done" hidden>
+      <div class="tick" aria-hidden="true">✓</div>
+      <h2>Recebemos seu cadastro!</h2>
+      <p>Se o seu perfil combinar com uma vaga, a equipe Servir entra em contato pelo WhatsApp.</p>
+    </div>
+  </div>
+</main>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="listas.js"></script>
+<script>
+(function () {
+  "use strict";
+  var L = window.SERVIR_LISTAS, CFG = window.SERVIR_CONFIG || {};
+  var $ = function (s) { return document.querySelector(s); };
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  var toastT;
+  function toast(m) { var t = $("#toast"); t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 3500); }
+  function fmtTel(d) { d = String(d).replace(/\D/g, "").slice(0, 11); if (d.length < 3) return d; if (d.length < 8) return "(" + d.slice(0, 2) + ") " + d.slice(2); return "(" + d.slice(0, 2) + ") " + d.slice(2, 7) + "-" + d.slice(7); }
+  function opts(arr) { return '<option value="">Escolha</option>' + arr.map(function (a) { return "<option>" + esc(a) + "</option>"; }).join(""); }
+  function chips(id, name, arr, type) {
+    $("#" + id).innerHTML = arr.map(function (a, i) {
+      var v = typeof a === "object" ? a.v : a, t = typeof a === "object" ? a.t : a;
+      return '<label class="chip-opt"><input type="' + type + '" name="' + name + '" value="' + esc(v) + '" id="' + id + "-" + i + '"><span>' + esc(t) + "</span></label>";
+    }).join("");
+  }
+
+  var configurado = CFG.SUPABASE_URL && CFG.SUPABASE_URL.indexOf("COLE_AQUI") < 0 && window.supabase;
+  if (!configurado) $("#aviso-config").hidden = false;
+  var sb = configurado ? window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: "servir-form" }
+  }) : null;
+
+  $("#f-cidade").innerHTML = opts(L.CIDADES);
+  $("#f-esc").innerHTML = opts(L.ESC);
+  $("#f-salario").innerHTML = opts(L.SALARIO);
+  chips("f-exp", "exp", L.EXP, "radio");
+  chips("f-lider", "lider", ["Sim", "Não"], "radio");
+  chips("f-excel", "excel", L.EXCEL, "radio");
+  chips("f-cnh", "cnh", L.CNH, "radio");
+  chips("f-turnos", "turnos", L.TURNOS, "checkbox");
+  chips("f-inicio", "inicio", L.INICIO, "radio");
+
+  // Vagas abertas vêm do banco (o RH abre e fecha pelo painel)
+  function carregarVagas() {
+    if (!sb) { chips("f-vagas", "vagas", L.VAGAS_PADRAO, "checkbox"); return; }
+    sb.from("vagas").select("id,nome,ordem").order("ordem").then(function (r) {
+      if (r.error || !r.data) { $("#f-vagas").innerHTML = '<span class="hint">Não conseguimos carregar as vagas. Recarregue a página em alguns minutos.</span>'; return; }
+      if (!r.data.length) { $("#f-vagas").innerHTML = '<span class="hint">No momento não há vagas abertas. Volte em breve!</span>'; $("#enviar").disabled = true; return; }
+      chips("f-vagas", "vagas", r.data.map(function (v) { return { v: v.id, t: v.nome }; }), "checkbox");
+    });
+  }
+  carregarVagas();
+
+  var form = $("#cad");
+  function vals() {
+    var fd = new FormData(form);
+    return {
+      nome: String(fd.get("nome") || "").trim().replace(/\s+/g, " "), whats: String(fd.get("whats") || "").replace(/\D/g, ""),
+      email: String(fd.get("email") || "").trim(), cidade: fd.get("cidade") || "", bairro: String(fd.get("bairro") || "").trim(),
+      vagas: fd.getAll("vagas"), exp: fd.get("exp") || "", ultimo: String(fd.get("ultimo") || "").trim(), lider: fd.get("lider") || "",
+      esc: fd.get("esc") || "", curso: String(fd.get("curso") || "").trim(), excel: fd.get("excel") || "", cnh: fd.get("cnh") || "",
+      turnos: fd.getAll("turnos"), inicio: fd.get("inicio") || "", salario: fd.get("salario") || "", aceite: $("#f-aceite").checked,
+      cv: $("#f-cv").files[0] || null, site: fd.get("site") || ""
+    };
+  }
+  var TIPOS = { "application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/heic": "heic" };
+  var CHECKS = {
+    nome: function (v) { return v.nome.length >= 5 && v.nome.split(" ").length >= 2; },
+    whats: function (v) { return /^[1-9]{2}9?[0-9]{8}$/.test(v.whats) && v.whats.length === 11; },
+    email: function (v) { return !v.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email); },
+    cidade: function (v) { return !!v.cidade; }, bairro: function (v) { return v.bairro.length >= 2; },
+    vagas: function (v) { return v.vagas.length >= 1 && v.vagas.length <= 2; }, exp: function (v) { return !!v.exp; },
+    lider: function (v) { return !!v.lider; }, esc: function (v) { return !!v.esc; }, excel: function (v) { return !!v.excel; },
+    cnh: function (v) { return !!v.cnh; }, turnos: function (v) { return v.turnos.length > 0; }, inicio: function (v) { return !!v.inicio; },
+    salario: function (v) { return !!v.salario; },
+    cv: function (v) { return !v.cv || (TIPOS[v.cv.type] && v.cv.size <= 5 * 1024 * 1024); },
+    aceite: function (v) { return v.aceite; }
+  };
+  var OBRIG = ["nome", "whats", "cidade", "bairro", "vagas", "exp", "lider", "esc", "excel", "cnh", "turnos", "inicio", "salario", "aceite"];
+  function progresso() {
+    var v = vals(), n = 0;
+    OBRIG.forEach(function (k) { if (CHECKS[k](v)) n++; });
+    $("#prog").style.width = (n / OBRIG.length * 100) + "%";
+    $("#prog-txt").textContent = n + " de " + OBRIG.length + " itens obrigatórios preenchidos";
+    form.querySelectorAll(".field.err").forEach(function (f) { if (CHECKS[f.dataset.req](v)) f.classList.remove("err"); });
+  }
+  form.addEventListener("input", progresso);
+  form.addEventListener("change", function (e) {
+    if (e.target.name === "vagas" && form.querySelectorAll('input[name="vagas"]:checked').length > 2) { e.target.checked = false; toast("Escolha no máximo 2 vagas."); }
+    progresso();
+  });
+  $("#f-whats").addEventListener("input", function (e) { e.target.value = fmtTel(e.target.value); });
+  progresso();
+
+  function uuid() {
+    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, function (c) { return (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16); });
+  }
+  function mostrarSucesso() { $("#form-area").hidden = true; $("#form-done").hidden = false; window.scrollTo({ top: 0 }); }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    $("#erro-envio").hidden = true;
+    var v = vals(), first = null;
+    form.querySelectorAll(".field[data-req]").forEach(function (f) {
+      var ok = CHECKS[f.dataset.req](v); f.classList.toggle("err", !ok); if (!ok && !first) first = f;
+    });
+    if (first) {
+      first.scrollIntoView({ behavior: "smooth", block: "center" });
+      var inp = first.querySelector("input, select"); if (inp) inp.focus({ preventScroll: true });
+      toast("Faltam alguns itens. Veja os campos em vermelho."); return;
+    }
+    if (v.site) { mostrarSucesso(); return; } // robô
+    if (!sb) { toast("Formulário ainda não configurado."); return; }
+
+    var btn = $("#enviar"); btn.disabled = true; btn.textContent = "Enviando…";
+    var caminho = null;
+    var envioCv = Promise.resolve();
+    if (v.cv) {
+      caminho = "cv/" + uuid() + "." + TIPOS[v.cv.type];
+      envioCv = sb.storage.from("curriculos").upload(caminho, v.cv, { contentType: v.cv.type, upsert: false }).then(function (r) { if (r.error) throw r.error; });
+    }
+    envioCv.then(function () {
+      return sb.from("candidatos").insert({
+        nome: v.nome, whatsapp: v.whats, email: v.email || null, cidade: v.cidade, bairro: v.bairro, vagas: v.vagas,
+        experiencia: v.exp, ultimo_cargo: v.ultimo || null, liderou: v.lider === "Sim", escolaridade: v.esc, curso: v.curso || null,
+        excel: v.excel, cnh: v.cnh, turnos: v.turnos, inicio: v.inicio, pretensao: v.salario, curriculo_path: caminho, aceite_lgpd: true
+      });
+    }).then(function (r) {
+      if (r && r.error) throw r.error;
+      mostrarSucesso();
+    }).catch(function (err) {
+      console.error(err);
+      var box = $("#erro-envio");
+      box.textContent = "Não conseguimos enviar agora. Confira sua internet e tente de novo. Se continuar, mande seu currículo para rh@cartaoservir.com.br.";
+      box.hidden = false;
+      btn.disabled = false; btn.textContent = "Enviar meu cadastro";
+    });
+  });
+})();
+</script>
+</body>
+</html>
