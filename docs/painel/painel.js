@@ -339,27 +339,27 @@
 
   // ---------------- Experiências ----------------
   var MES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-  function mesAno(s) { if (!s) return ""; var p = String(s).split("-"); return MES[Number(p[1]) - 1] + "/" + p[0]; }
+  function mesAno(s) { var m = /^(\d{4})-(\d{2})$/.exec(String(s || "")); if (!m) return ""; return (MES[Number(m[2]) - 1] || "") + "/" + m[1]; }
   function duracao(x) {
-    if (!x.entrada) return "";
-    var a = x.entrada.split("-").map(Number), hoje = new Date();
-    var b = x.atual || !x.saida ? [hoje.getFullYear(), hoje.getMonth() + 1] : x.saida.split("-").map(Number);
+    if (!/^\d{4}-\d{2}$/.test(String(x.entrada || ""))) return "";
+    var a = String(x.entrada).split("-").map(Number), hoje = new Date();
+    var b = x.atual === true || !/^\d{4}-\d{2}$/.test(String(x.saida || "")) ? [hoje.getFullYear(), hoje.getMonth() + 1] : String(x.saida).split("-").map(Number);
     var m = (b[0] - a[0]) * 12 + (b[1] - a[1]) + 1; if (m < 1) m = 1;
     var anos = Math.floor(m / 12), meses = m % 12, t = [];
     if (anos) t.push(anos + (anos === 1 ? " ano" : " anos")); if (meses) t.push(meses + (meses === 1 ? " mês" : " meses"));
     return t.join(" e ");
   }
-  function reais(v) { return v ? "R$ " + Number(v).toLocaleString("pt-BR") : ""; }
+  function reais(v) { var n = Number(v); return n > 0 && isFinite(n) ? "R$ " + n.toLocaleString("pt-BR") : ""; }
   function textoExp(c, i) {
     var x = (c.experiencias || [])[i]; if (!x) return "";
     return x.cargo + " - " + x.empresa + " (" + mesAno(x.entrada) + " a " + (x.atual ? "atual" : mesAno(x.saida)) + ", " + duracao(x) + ")" + (x.salario ? " - " + reais(x.salario) : "");
   }
   function listaExps(c) {
     if (c.primeiro_emprego) return "Primeiro emprego (sem experiência)";
-    var xs = c.experiencias || [];
+    var xs = Array.isArray(c.experiencias) ? c.experiencias.filter(function (x) { return x && typeof x === "object"; }) : [];
     if (!xs.length) return esc(c.ultimo_cargo || "Não informado");
     return '<ul class="exp-list">' + xs.map(function (x) {
-      return "<li><b>" + esc(x.cargo) + "</b> · " + esc(x.empresa) + '<div class="t">' + mesAno(x.entrada) + " a " + (x.atual ? "atual" : mesAno(x.saida)) + " · " + duracao(x) + (x.salario ? " · " + reais(x.salario) : "") + "</div></li>";
+      return "<li><b>" + esc(x.cargo) + "</b> · " + esc(x.empresa) + '<div class="t">' + esc(mesAno(x.entrada) + " a " + (x.atual === true ? "atual" : mesAno(x.saida)) + " · " + duracao(x) + (x.salario ? " · " + reais(x.salario) : "")) + "</div></li>";
     }).join("") + "</ul>";
   }
 
