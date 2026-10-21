@@ -22,7 +22,7 @@
   // ---------------- estado ----------------
   var state = {
     me: null, vagas: [], cands: [], users: [], tab: "cands",
-    f: { vaga: "", min: 0, cidade: "", esc: "", exp: "", lider: "", excel: "", cnh: "", turno: "", inicio: "", status: "", periodo: "", busca: "" },
+    f: { vaga: "", min: 0, cidade: "", cidint: "", esc: "", exp: "", lider: "", excel: "", cnh: "", turno: "", inicio: "", status: "", periodo: "", busca: "" },
     aberto: null, timer: null
   };
   function vagaById(id) { for (var i = 0; i < state.vagas.length; i++) if (state.vagas[i].id === id) return state.vagas[i]; return null; }
@@ -230,6 +230,7 @@
     return state.cands.filter(function (c) {
       if (f.vaga && c.vagas.indexOf(f.vaga) < 0) return false;
       if (f.cidade && c.cidade !== f.cidade) return false;
+      if (f.cidint && (c.cidades_interesse || []).indexOf(f.cidint) < 0) return false;
       if (f.esc && L.ESC.indexOf(c.escolaridade) < L.ESC.indexOf(f.esc)) return false;
       if (f.exp && L.EXP.indexOf(c.experiencia) < L.EXP.indexOf(f.exp)) return false;
       if (f.lider && String(c.liderou) !== f.lider) return false;
@@ -257,7 +258,8 @@
       '<div><label for="fl-busca">Buscar nome, bairro ou telefone</label><input type="text" id="fl-busca" data-f="busca" value="' + esc(f.busca) + '"></div>' +
       '<div><label for="fl-vaga">Vaga</label><select id="fl-vaga" data-f="vaga">' + vagaOpts + "</select></div>" +
       '<div><label for="fl-min">Nota mínima</label><div class="range-row"><input type="range" id="fl-min" data-f="min" min="0" max="100" step="5" value="' + f.min + '"><output id="fl-min-out">' + f.min + "</output></div></div>" +
-      '<div><label for="fl-cidade">Cidade</label><select id="fl-cidade" data-f="cidade">' + opts(L.CIDADES, f.cidade, "Todas") + "</select></div>" +
+      '<div><label for="fl-cidint">Quer trabalhar em</label><select id="fl-cidint" data-f="cidint">' + opts(L.CIDADES, f.cidint, "Qualquer cidade") + "</select></div>" +
+      '<div><label for="fl-cidade">Cidade onde mora</label><select id="fl-cidade" data-f="cidade">' + opts(L.CIDADES, f.cidade, "Todas") + "</select></div>" +
       '<div><label for="fl-status">Etapa</label><select id="fl-status" data-f="status">' + opts(L.STATUS, f.status, "Todas") + "</select></div>" +
       '<div><label for="fl-periodo">Data do cadastro</label><select id="fl-periodo" data-f="periodo">' + per.map(function (p) { return '<option value="' + p[0] + '"' + (f.periodo === p[0] ? " selected" : "") + ">" + p[1] + "</option>"; }).join("") + "</select></div>" +
       '<div><label for="fl-esc">Escolaridade mínima</label><select id="fl-esc" data-f="esc">' + opts(L.ESC, f.esc, "Qualquer") + "</select></div>" +
@@ -300,12 +302,13 @@
       return '<article class="cand">' +
         '<div class="score ' + fx[0] + '" title="Nota para ' + esc(n.vaga.nome) + '"><div><b>' + n.total + "</b><small>" + fx[1] + "</small></div></div>" +
         '<div style="min-width:0"><h3>' + esc(c.nome) + "</h3>" +
-        '<div class="meta"><span>' + esc(c.cidade) + " · " + esc(c.bairro) + "</span><span>" + esc(c.escolaridade) + "</span><span>Exp.: " + esc(c.experiencia) + "</span><span>Cadastro " + fmtData(c.criado_em) + "</span></div>" +
+        '<div class="meta">' + (c.idade ? "<span>" + c.idade + " anos</span>" : "") + '<span>' + esc(c.cidade) + " · " + esc(c.bairro) + "</span><span>" + esc(c.escolaridade) + "</span><span>Exp.: " + esc(c.experiencia) + "</span><span>Cadastro " + fmtData(c.criado_em) + "</span></div>" +
         '<div class="tags">' + c.vagas.map(function (id) { var v = vagaById(id); return '<span class="tag vaga">' + esc(v ? v.nome : id) + "</span>"; }).join("") +
         (state.f.vaga ? "" : '<span class="tag">nota para ' + esc(n.vaga.nome) + "</span>") +
         (dup[c.whatsapp] > 1 ? '<span class="tag dup">Cadastro repetido</span>' : "") +
         (vencido(c) ? '<span class="tag velho">Mais de 12 meses</span>' : "") +
-        (c.curriculo_path ? '<span class="tag">Com currículo</span>' : "") + "</div></div>" +
+        (c.curriculo_path ? '<span class="tag">Com currículo</span>' : "") + "</div>" +
+        ((c.cidades_interesse || []).length ? '<div class="meta" style="margin-top:6px"><span>Quer trabalhar em: ' + esc(c.cidades_interesse.join(", ")) + "</span></div>" : "") + "</div>" +
         '<div class="actions"><span class="status' + (c.status === "Novo" ? " st-novo" : "") + '">' + esc(c.status) + "</span>" +
         '<button type="button" class="btn btn-small btn-primary" data-open="' + c.id + '">Ver ficha</button></div></article>';
     }).join("");
@@ -318,9 +321,10 @@
     var linhas = lista.map(function (c) {
       var n = notaAtual(c);
       return {
-        "Nota": n.total, "Nota calculada para": n.vaga.nome, "Nome": c.nome, "WhatsApp": fmtTel(c.whatsapp), "E-mail": c.email || "",
+        "Nota": n.total, "Nota calculada para": n.vaga.nome, "Nome": c.nome, "Idade": c.idade || "", "WhatsApp": fmtTel(c.whatsapp), "E-mail": c.email || "",
         "Cidade": c.cidade, "Bairro": c.bairro, "Vagas escolhidas": c.vagas.map(function (id) { var v = vagaById(id); return v ? v.nome : id; }).join(", "),
-        "Experiência": c.experiencia, "Último cargo": c.ultimo_cargo || "", "Liderou equipe": c.liderou ? "Sim" : "Não",
+        "Experiência": c.experiencia, "Quer trabalhar em": (c.cidades_interesse || []).join(", "), "Primeiro emprego": c.primeiro_emprego ? "Sim" : "Não",
+        "Emprego 1": textoExp(c, 0), "Emprego 2": textoExp(c, 1), "Emprego 3": textoExp(c, 2), "Último cargo": c.ultimo_cargo || "", "Liderou equipe": c.liderou ? "Sim" : "Não",
         "Escolaridade": c.escolaridade, "Curso": c.curso || "", "Excel": c.excel, "CNH": c.cnh, "Turnos": c.turnos.join(", "),
         "Pode começar": c.inicio, "Pretensão salarial": c.pretensao, "Etapa": c.status, "Cadastro em": fmtData(c.criado_em),
         "Currículo anexado": c.curriculo_path ? "Sim" : "Não"
@@ -331,6 +335,32 @@
     var d = new Date();
     XLSX.writeFile(wb, "candidatos-servir-" + d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0") + ".xlsx");
     toast(linhas.length + " candidatos exportados.");
+  }
+
+  // ---------------- Experiências ----------------
+  var MES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  function mesAno(s) { if (!s) return ""; var p = String(s).split("-"); return MES[Number(p[1]) - 1] + "/" + p[0]; }
+  function duracao(x) {
+    if (!x.entrada) return "";
+    var a = x.entrada.split("-").map(Number), hoje = new Date();
+    var b = x.atual || !x.saida ? [hoje.getFullYear(), hoje.getMonth() + 1] : x.saida.split("-").map(Number);
+    var m = (b[0] - a[0]) * 12 + (b[1] - a[1]) + 1; if (m < 1) m = 1;
+    var anos = Math.floor(m / 12), meses = m % 12, t = [];
+    if (anos) t.push(anos + (anos === 1 ? " ano" : " anos")); if (meses) t.push(meses + (meses === 1 ? " mês" : " meses"));
+    return t.join(" e ");
+  }
+  function reais(v) { return v ? "R$ " + Number(v).toLocaleString("pt-BR") : ""; }
+  function textoExp(c, i) {
+    var x = (c.experiencias || [])[i]; if (!x) return "";
+    return x.cargo + " - " + x.empresa + " (" + mesAno(x.entrada) + " a " + (x.atual ? "atual" : mesAno(x.saida)) + ", " + duracao(x) + ")" + (x.salario ? " - " + reais(x.salario) : "");
+  }
+  function listaExps(c) {
+    if (c.primeiro_emprego) return "Primeiro emprego (sem experiência)";
+    var xs = c.experiencias || [];
+    if (!xs.length) return esc(c.ultimo_cargo || "Não informado");
+    return '<ul class="exp-list">' + xs.map(function (x) {
+      return "<li><b>" + esc(x.cargo) + "</b> · " + esc(x.empresa) + '<div class="t">' + mesAno(x.entrada) + " a " + (x.atual ? "atual" : mesAno(x.saida)) + " · " + duracao(x) + (x.salario ? " · " + reais(x.salario) : "") + "</div></li>";
+    }).join("") + "</ul>";
   }
 
   // ---------------- Ficha ----------------
@@ -374,9 +404,11 @@
 
         '<div class="box"><h3>Dados do cadastro</h3><dl class="dl">' +
         "<dt>Vagas escolhidas</dt><dd>" + c.vagas.map(function (x) { var vv = vagaById(x); return esc(vv ? vv.nome : x); }).join(", ") + "</dd>" +
+        "<dt>Idade</dt><dd>" + (c.idade ? c.idade + " anos" : "Não informada") + "</dd>" +
+        "<dt>Quer trabalhar em</dt><dd>" + esc((c.cidades_interesse || []).join(", ") || "Não informado") + "</dd>" +
         "<dt>Cidade e bairro</dt><dd>" + esc(c.cidade) + " · " + esc(c.bairro) + "</dd>" +
         "<dt>Experiência</dt><dd>" + esc(c.experiencia) + "</dd>" +
-        "<dt>Último cargo</dt><dd>" + esc(c.ultimo_cargo || "Não informado") + "</dd>" +
+        "<dt>Empregos</dt><dd>" + listaExps(c) + "</dd>" +
         "<dt>Liderou equipe</dt><dd>" + (c.liderou ? "Sim" : "Não") + "</dd>" +
         "<dt>Escolaridade</dt><dd>" + esc(c.escolaridade) + (c.curso ? " · " + esc(c.curso) : "") + "</dd>" +
         "<dt>Excel</dt><dd>" + esc(c.excel) + "</dd>" +

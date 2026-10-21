@@ -13,7 +13,9 @@
       var parts = [], max = 100;
       var cidades = v.cidades || [];
       parts.push(["Escolheu essa vaga no cadastro", (c.vagas || []).indexOf(v.id) > -1 ? 30 : 0, 30]);
-      parts.push(["Cidade atendida pela vaga", (cidades.length === 0 || cidades.indexOf(c.cidade) > -1) ? 20 : 0, 20]);
+      var quer = (c.cidades_interesse && c.cidades_interesse.length) ? c.cidades_interesse : [c.cidade];
+      var bate = cidades.length === 0 || quer.some(function (x) { return cidades.indexOf(x) > -1; });
+      parts.push(["Quer trabalhar em cidade da vaga", bate ? 20 : 0, 20]);
       var ie = L.EXP.indexOf(c.experiencia);
       parts.push(["Experiência: " + c.experiencia, ie > -1 ? L.EXP_PTS[ie] : 0, 20]);
       parts.push(["Escolaridade mínima (" + v.esc_min + ")", L.ESC.indexOf(c.escolaridade) >= L.ESC.indexOf(v.esc_min) ? 10 : 0, 10]);
