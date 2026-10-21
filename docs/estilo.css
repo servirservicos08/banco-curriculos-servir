@@ -242,3 +242,14 @@ details.cities summary { cursor: pointer; font-size: 14px; }
 .tag.velho { background: var(--surface); border: 1px solid var(--crit); color: var(--crit); }
 fieldset > *, .field { min-width: 0; }
 .file-box input[type="file"] { max-width: 100%; }
+.exps { display: grid; gap: 12px; margin-top: 10px; }
+.exp-box { border: 1px dashed var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 12px; min-width: 0; }
+.exp-box h4 { margin: 0; font-size: 15px; font-family: var(--font-display); }
+.exp-box .lbl { font-size: 13.5px; }
+.mesano { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.check-line { display: flex; gap: 8px; align-items: center; font-size: 14px; margin-top: 8px; cursor: pointer; }
+.check-line input { width: 18px; height: 18px; accent-color: var(--brand); flex: none; }
+.field.err .exps .exp-box:first-child { border-color: var(--crit); }
+.exp-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.exp-list li { border-left: 3px solid var(--brand-soft); padding-left: 10px; font-size: 14px; }
+.exp-list .t { color: var(--muted); font-size: 13px; }

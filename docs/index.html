@@ -63,6 +63,11 @@
               <div class="msg">Confira o e-mail ou deixe em branco.</div>
             </div>
           </div>
+          <div class="field" data-req="idade">
+            <label class="lbl" for="f-idade">Idade <span class="req">*</span></label>
+            <input type="text" id="f-idade" name="idade" inputmode="numeric" maxlength="2" style="max-width:120px">
+            <div class="msg">Informe sua idade. É preciso ter 18 anos ou mais para se cadastrar.</div>
+          </div>
           <div class="grid2">
             <div class="field" data-req="cidade">
               <label class="lbl" for="f-cidade">Cidade <span class="req">*</span></label>
@@ -85,14 +90,23 @@
             <div class="hint">Escolha até 2.</div>
             <div class="msg">Escolha pelo menos uma vaga.</div>
           </div>
+          <div class="field" data-req="cidint">
+            <span class="lbl" id="l-cidint">Em quais cidades você quer trabalhar? <span class="req">*</span></span>
+            <div class="opts" id="f-cidint" role="group" aria-labelledby="l-cidint"></div>
+            <div class="hint">Marque todas as cidades onde você aceita trabalhar.</div>
+            <div class="msg">Marque pelo menos uma cidade.</div>
+          </div>
           <div class="field" data-req="exp">
             <span class="lbl" id="l-exp">Experiência na área da vaga <span class="req">*</span></span>
             <div class="opts" id="f-exp" role="radiogroup" aria-labelledby="l-exp"></div>
             <div class="msg">Escolha uma opção.</div>
           </div>
-          <div class="field">
-            <label class="lbl" for="f-ultimo">Último cargo e empresa</label>
-            <input type="text" id="f-ultimo" name="ultimo" maxlength="150" placeholder="Ex.: Operadora de caixa, Supermercado X">
+          <div class="field" data-req="exps">
+            <span class="lbl">Seus últimos empregos <span class="req">*</span></span>
+            <div class="hint" style="margin:0 0 8px">Informe até 3, começando pelo mais recente.</div>
+            <label class="check-line" for="f-primeiro"><input type="checkbox" id="f-primeiro"> É meu primeiro emprego (não tenho experiência)</label>
+            <div id="f-exps" class="exps"></div>
+            <div class="msg" id="msg-exps">Preencha pelo menos o emprego mais recente: empresa, cargo, entrada, saída e salário.</div>
           </div>
           <div class="field" data-req="lider">
             <span class="lbl" id="l-lider">Já liderou equipe? <span class="req">*</span></span>
@@ -149,12 +163,12 @@
         <fieldset>
           <legend>Currículo e autorização</legend>
           <div class="field" data-req="cv">
-            <label class="lbl" for="f-cv">Currículo (opcional)</label>
+            <label class="lbl" for="f-cv">Currículo <span class="req">*</span></label>
             <div class="file-box">
               <input type="file" id="f-cv" accept=".pdf,image/jpeg,image/png,image/webp,image/heic">
               <div class="hint">PDF ou foto, até 5 MB.</div>
             </div>
-            <div class="msg">Envie um PDF ou foto de até 5 MB, ou deixe em branco.</div>
+            <div class="msg">Anexe seu currículo em PDF ou foto, até 5 MB. Se só tiver impresso, tire uma foto dele.</div>
           </div>
           <div class="field" data-req="aceite">
             <label class="consent" for="f-aceite">
@@ -213,6 +227,43 @@
   chips("f-cnh", "cnh", L.CNH, "radio");
   chips("f-turnos", "turnos", L.TURNOS, "checkbox");
   chips("f-inicio", "inicio", L.INICIO, "radio");
+  chips("f-cidint", "cidint", L.CIDADES, "checkbox");
+
+  // Blocos dos 3 últimos empregos
+  var MESES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+  var anoAtual = new Date().getFullYear();
+  function selMes(id) { return '<select id="' + id + '"><option value="">Mês</option>' + MESES.map(function (m, i) { return '<option value="' + String(i + 1).padStart(2, "0") + '">' + m + "</option>"; }).join("") + "</select>"; }
+  function selAno(id) { var o = '<select id="' + id + '"><option value="">Ano</option>'; for (var a = anoAtual; a >= anoAtual - 45; a--) o += "<option>" + a + "</option>"; return o + "</select>"; }
+  $("#f-exps").innerHTML = [1, 2, 3].map(function (n) {
+    return '<div class="exp-box" id="exp' + n + '"><h4>' + (n === 1 ? "Emprego mais recente" : n + "º emprego (opcional)") + "</h4>" +
+      '<div class="grid2"><div><label class="lbl" for="e' + n + '-emp">Empresa</label><input type="text" id="e' + n + '-emp" maxlength="100"></div>' +
+      '<div><label class="lbl" for="e' + n + '-cargo">Cargo</label><input type="text" id="e' + n + '-cargo" maxlength="80"></div></div>' +
+      '<div class="grid2"><div><span class="lbl">Entrada</span><div class="mesano">' + selMes("e" + n + "-em") + selAno("e" + n + "-ea") + "</div></div>" +
+      '<div><span class="lbl">Saída</span><div class="mesano">' + selMes("e" + n + "-sm") + selAno("e" + n + "-sa") + "</div>" +
+      '<label class="check-line" for="e' + n + '-atual"><input type="checkbox" id="e' + n + '-atual"> Trabalho aqui atualmente</label></div></div>' +
+      '<div><label class="lbl" for="e' + n + '-sal">Último salário (R$)</label><input type="text" id="e' + n + '-sal" inputmode="numeric" placeholder="Ex.: 1.850" style="max-width:200px"></div></div>';
+  }).join("");
+  [1, 2, 3].forEach(function (n) {
+    $("#e" + n + "-atual").addEventListener("change", function (e) { $("#e" + n + "-sm").disabled = e.target.checked; $("#e" + n + "-sa").disabled = e.target.checked; });
+    $("#e" + n + "-sal").addEventListener("input", function (e) { var d = e.target.value.replace(/\D/g, "").slice(0, 6); e.target.value = d ? Number(d).toLocaleString("pt-BR") : ""; });
+  });
+  $("#f-primeiro").addEventListener("change", function (e) { $("#f-exps").hidden = e.target.checked; });
+  function lerExps() {
+    var lista = [], erro = false, hoje = anoAtual * 100 + new Date().getMonth() + 1;
+    [1, 2, 3].forEach(function (n) {
+      var g = function (k) { return $("#e" + n + "-" + k); };
+      var x = { empresa: g("emp").value.trim(), cargo: g("cargo").value.trim(), entrada: g("ea").value && g("em").value ? g("ea").value + "-" + g("em").value : "",
+        atual: g("atual").checked, saida: g("atual").checked ? null : (g("sa").value && g("sm").value ? g("sa").value + "-" + g("sm").value : ""),
+        salario: Number(g("sal").value.replace(/\D/g, "")) || 0 };
+      var algo = x.empresa || x.cargo || x.entrada || x.saida || x.salario || x.atual;
+      if (!algo) return;
+      var completo = x.empresa && x.cargo && x.entrada && (x.atual || x.saida) && x.salario > 0;
+      var ini = Number(x.entrada.replace("-", "")), fim = x.atual ? hoje : Number(String(x.saida).replace("-", ""));
+      if (!completo || ini > fim || ini > hoje) erro = true;
+      lista.push(x);
+    });
+    return { lista: lista, erro: erro };
+  }
 
   // Vagas abertas vêm do banco (o RH abre e fecha pelo painel)
   function carregarVagas() {
@@ -230,8 +281,9 @@
     var fd = new FormData(form);
     return {
       nome: String(fd.get("nome") || "").trim().replace(/\s+/g, " "), whats: String(fd.get("whats") || "").replace(/\D/g, ""),
+      idade: parseInt(String(fd.get("idade") || "").replace(/\D/g, ""), 10) || 0,
       email: String(fd.get("email") || "").trim(), cidade: fd.get("cidade") || "", bairro: String(fd.get("bairro") || "").trim(),
-      vagas: fd.getAll("vagas"), exp: fd.get("exp") || "", ultimo: String(fd.get("ultimo") || "").trim(), lider: fd.get("lider") || "",
+      vagas: fd.getAll("vagas"), exp: fd.get("exp") || "", cidint: fd.getAll("cidint"), primeiro: $("#f-primeiro").checked, exps: lerExps(), lider: fd.get("lider") || "",
       esc: fd.get("esc") || "", curso: String(fd.get("curso") || "").trim(), excel: fd.get("excel") || "", cnh: fd.get("cnh") || "",
       turnos: fd.getAll("turnos"), inicio: fd.get("inicio") || "", salario: fd.get("salario") || "", aceite: $("#f-aceite").checked,
       cv: $("#f-cv").files[0] || null, site: fd.get("site") || ""
@@ -247,10 +299,13 @@
     lider: function (v) { return !!v.lider; }, esc: function (v) { return !!v.esc; }, excel: function (v) { return !!v.excel; },
     cnh: function (v) { return !!v.cnh; }, turnos: function (v) { return v.turnos.length > 0; }, inicio: function (v) { return !!v.inicio; },
     salario: function (v) { return !!v.salario; },
-    cv: function (v) { return !v.cv || (TIPOS[v.cv.type] && v.cv.size <= 5 * 1024 * 1024); },
+    idade: function (v) { return v.idade >= 18 && v.idade <= 80; },
+    cidint: function (v) { return v.cidint.length > 0; },
+    exps: function (v) { return v.primeiro || (!v.exps.erro && v.exps.lista.length > 0 && !!$("#e1-emp").value.trim()); },
+    cv: function (v) { return !!v.cv && !!TIPOS[v.cv.type] && v.cv.size <= 5 * 1024 * 1024; },
     aceite: function (v) { return v.aceite; }
   };
-  var OBRIG = ["nome", "whats", "cidade", "bairro", "vagas", "exp", "lider", "esc", "excel", "cnh", "turnos", "inicio", "salario", "aceite"];
+  var OBRIG = ["nome", "idade", "whats", "cidade", "bairro", "vagas", "cidint", "exp", "exps", "lider", "esc", "excel", "cnh", "turnos", "inicio", "salario", "cv", "aceite"];
   function progresso() {
     var v = vals(), n = 0;
     OBRIG.forEach(function (k) { if (CHECKS[k](v)) n++; });
@@ -264,6 +319,7 @@
     progresso();
   });
   $("#f-whats").addEventListener("input", function (e) { e.target.value = fmtTel(e.target.value); });
+  $("#f-idade").addEventListener("input", function (e) { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 2); });
   progresso();
 
   function uuid() {
@@ -296,8 +352,9 @@
     }
     envioCv.then(function () {
       return sb.from("candidatos").insert({
-        nome: v.nome, whatsapp: v.whats, email: v.email || null, cidade: v.cidade, bairro: v.bairro, vagas: v.vagas,
-        experiencia: v.exp, ultimo_cargo: v.ultimo || null, liderou: v.lider === "Sim", escolaridade: v.esc, curso: v.curso || null,
+        nome: v.nome, idade: v.idade, whatsapp: v.whats, email: v.email || null, cidade: v.cidade, bairro: v.bairro, vagas: v.vagas,
+        experiencia: v.exp, cidades_interesse: v.cidint, primeiro_emprego: v.primeiro,
+        experiencias: v.primeiro ? [] : v.exps.lista, ultimo_cargo: !v.primeiro && v.exps.lista[0] ? (v.exps.lista[0].cargo + ", " + v.exps.lista[0].empresa).slice(0, 150) : null, liderou: v.lider === "Sim", escolaridade: v.esc, curso: v.curso || null,
         excel: v.excel, cnh: v.cnh, turnos: v.turnos, inicio: v.inicio, pretensao: v.salario, curriculo_path: caminho, aceite_lgpd: true
       });
     }).then(function (r) {
