@@ -1,0 +1,43 @@
+# Mantém o banco de dados gratuito (Supabase) ativo: o plano grátis pausa
+# o projeto depois de 7 dias sem uso. Este robô faz uma consulta por dia.
+name: Manter banco ativo
+
+on:
+  schedule:
+    - cron: "17 11 * * *"   # todo dia, 08:17 no horário de Brasília
+  workflow_dispatch:         # permite rodar na mão pela aba Actions
+
+permissions:
+  contents: write
+
+jobs:
+  manter-ativo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Consultar o banco
+        run: |
+          URL=$(grep -o 'SUPABASE_URL: *"[^"]*"' docs/config.js | sed 's/.*"\(.*\)"/\1/')
+          KEY=$(grep -o 'SUPABASE_KEY: *"[^"]*"' docs/config.js | sed 's/.*"\(.*\)"/\1/')
+          case "$URL" in
+            https://*) ;;
+            *) echo "config.js ainda não foi preenchido; nada a fazer."; exit 0 ;;
+          esac
+          curl -fsS --retry 3 "$URL/rest/v1/vagas?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY"
+          echo
+          echo "Banco respondeu normalmente."
+
+      # O GitHub desliga robôs de repositórios parados há 60 dias.
+      # Uma vez por mês o robô registra a data, e isso conta como atividade.
+      - name: Registrar atividade mensal
+        run: |
+          if [ "$(date +%d)" = "01" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            mkdir -p manutencao
+            date -u +"%Y-%m-%d %H:%M UTC" > manutencao/ultima-verificacao.txt
+            git config user.name "robo-manutencao"
+            git config user.email "robo-manutencao@users.noreply.github.com"
+            git add manutencao/ultima-verificacao.txt
+            git commit -m "Verificação mensal do banco" || true
+            git push || true
+          fi
